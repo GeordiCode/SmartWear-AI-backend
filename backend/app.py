@@ -273,4 +273,10 @@ async def register_feedback(request: Request):
 
     return {"message": "Feedback recibido"}
 
+@app.get("api/ping")
+async def ping():
+    return {"ok": True, "message": "pong"}
+
+
+
 app.mount("/data", StaticFiles(directory="data"), name="data")
