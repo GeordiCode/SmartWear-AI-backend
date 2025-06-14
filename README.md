@@ -1,127 +1,128 @@
-# 👕 Emotion-Based Fashion Recommender
 
-Este proyecto es una aplicación fullstack que recomienda ropa según las emociones del usuario detectadas mediante la cámara. Combina visión por computadora con técnicas de aprendizaje por refuerzo para ofrecer una experiencia personalizada e inteligente.
+# 🧠 Backend - SmartWear AI
+
+Este backend está diseñado para alimentar una aplicación web de recomendación de ropa basada en el estado emocional del usuario. Utiliza técnicas de aprendizaje por refuerzo (Multi-Armed Bandit), una red neuronal y lógica de filtrado para proporcionar recomendaciones personalizadas de prendas.
+
+## 🚀 Tecnologías Usadas
+
+- 🐍 Python 3.12
+- ⚡ FastAPI
+- 🔁 Uvicorn
+- 🤖 PyTorch (Red neuronal para aprendizaje por refuerzo)
+- 🧪 Pandas (procesamiento del CSV)
+- 📦 JSON y CSV como estructuras de datos
+- 💡 Algoritmo Multi-Armed Bandit personalizado
+- 🎨 Reglas heurísticas para emociones y categorías
 
 ---
 
-## 🎯 Características principales
-
-- 📷 Detección de emociones faciales en tiempo real usando **FaceAPI.js**
-- 🧠 Motor de recomendación adaptativo mediante **Multi-Armed Bandit**
-- 👦 Reconocimiento de **género** para filtrar prendas relevantes
-- ♻️ Feedback del usuario que entrena al sistema para mejorar sus sugerencias
-- 🗂️ Recomendaciones extraídas del dataset de Kaggle: [Fashion Product Images Dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset)
-- 🔄 Backend en **FastAPI**, frontend en **React + Vite**
-
----
-
-## 📁 Estructura del proyecto
+## 📁 Estructura del Proyecto
 
 ```
-proyectoRopaJordi/
-├── backend/
-│   ├── app.py
-│   ├── bandits/
-│   │   └── bandit_manager.py
-│   ├── recommendations/
-│   │   └── recommendations.json
-│   └── data/
-│       ├── images/
-│       └── styles.csv
-├── my-react-app/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   └── components/
-│   │       └── ui/
-│   │           ├── button.jsx
-│   │           └── card.jsx
-│   └── public/
-│       └── models/  ← modelos de FaceAPI.js
+backend/
+├── app.py                         # Archivo principal con todos los endpoints
+├── bandit_manager.py              # Modelo de aprendizaje por refuerzo y red neuronal
+├── generate_recommendations.py    # Script para preprocesar el CSV y generar recomendaciones base por emoción
+├── recommendations/
+│   ├── recommendations.json       # Archivo JSON con las recomendaciones generadas
+│   └── recomendaciones_emocion_categoria.csv
+├── data/
+│   └── prendas.csv                # Dataset de prendas base
 ```
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
+## ✅ Funcionalidades Principales
 
-### 1. Backend (FastAPI + Recomendaciones)
+- Recomendación personalizada de prendas basada en:
+  - Estado emocional del usuario
+  - Género seleccionado
+  - Categoría general de la prenda
+- Entrenamiento en línea (online learning) con feedback del usuario (`like` o `dislike`)
+- Algoritmo de tipo **Multi-Armed Bandit** para balancear exploración y explotación
+- Filtro inteligente por color base y categorías específicas
+- Recomendaciones tipo "Tinder" que muestran una prenda a la vez
+- Actualización dinámica del modelo tras cada retroalimentación
+
+---
+
+## 📡 Endpoints Disponibles (FastAPI)
+
+- `GET /tinder-recommendations`  
+  Retorna 1 prenda optimizada según emoción, género y categoría.  
+  **Parámetros**: `emotion`, `gender`, `categoria_general`
+
+- `POST /feedback-tinder`  
+  Registra la retroalimentación del usuario (like/dislike) y entrena el modelo.  
+  **Body JSON**: `emotion`, `id`, `feedback` (1 o 0)
+
+- `GET /prendas`  
+  Muestra todas las prendas disponibles en el sistema
+
+- `GET /categorias`  
+  Muestra las categorías de ropa filtradas por género
+
+- `GET /recomendaciones-emocion`  
+  Muestra recomendaciones basadas en la emoción, sin necesidad de feedback
+
+---
+
+## 🔧 Cómo Ejecutar
+
+Instala dependencias:
 
 ```bash
 cd backend
-mkdir data
 python -m venv venv
-venv\Scripts\activate        # En Windows
+source venv/Scripts/activate  # o 'source venv/bin/activate' en Unix
 pip install -r requirements.txt
+```
+
+Corre el servidor:
+
+```bash
 uvicorn app:app --reload
 ```
 
-Asegúrate de tener:
-- El archivo `styles.csv` en `backend/data/`
-- Las imágenes del dataset en `backend/data/images/`
-- El archivo `recommendations.json` generado por `generate_recommendations.py`
-
 ---
 
-### 2. Frontend (React)
+## 🧪 Preprocesamiento del Dataset
+
+Antes de ejecutar el backend, asegúrate de generar el archivo `recommendations.json` con:
 
 ```bash
-cd my-react-app
-npm install
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-npm install firebase
-npm install firebase@latest
-npm install react-router-dom
-npm install papaparse
-npm run dev
+python generate_recommendations.py
 ```
 
----
+Este script:
 
-## 🧠 Inteligencia incorporada (IA)
-
-Este sistema utiliza:
-
-- 📊 **Multi-Armed Bandit (ε-greedy)**: selecciona las mejores prendas con base en la retroalimentación (rewards) del usuario.
-- 👁️‍🗨️ **FaceAPI.js**: para detección de emociones y género desde la cámara.
-- 🧠 En el futuro, se puede migrar a **Firebase** o **MongoDB** para guardar el feedback y el historial.
+- Carga el dataset `prendas.csv`
+- Lo filtra por emoción y categoría
+- Genera recomendaciones en `recommendations/recommendations.json`
 
 ---
 
-## 📝 Feedback
+## 🧠 Detalles del Modelo Bandit
 
-El feedback se registra mediante un POST a:
-
-```
-POST /api/feedback/
-Body:
-{
-  "emotion": "happy",
-  "item_id": "12345",
-  "reward": 1.0
-}
-```
-
-Esto permite que el sistema aprenda qué prendas gustaron más a cada emoción.
+- Codifica emociones y colores con vectores one-hot
+- Red neuronal:
+  - Entrada: 23 (7 emociones + 16 colores base)
+  - Capa oculta: 32 neuronas + ReLU
+  - Salida: puntuación estimada (recompensa)
+- Aprende en línea con retroalimentación directa
+- Selecciona las mejores prendas por puntuación o aleatoriamente con `epsilon`
 
 ---
 
-## ✅ Pendientes / Ideas futuras
+## 👤 Autor
 
-- [ ] Sección de “Recomendaciones populares”
-- [ ] Guardar historial del usuario
-- [ ] Migración a base de datos persistente (Firebase o MongoDB)
-- [ ] Incorporar edad como filtro adicional
-- [ ] Sistema de autenticación para perfiles únicos
+Proyecto desarrollado por:
 
----
-
-## 📸 Capturas
-
-![Demo](demo_1.png)
-![Detección](demo_2.png)
+- **Jordi Santiago Ledesma Arboleda**  
+  [GitHub - GeordiCode](https://github.com/GeordiCode/SmartWear-AI)
 
 ---
 
-## 📄 Licencia
+## 📜 Licencia
 
-MIT © [Jordi Ledesma, Diego Llanos]
+Este software se desarrolla como parte de un trabajo de grado en Ingeniería de Sistemas y está disponible bajo licencia de uso académico.
