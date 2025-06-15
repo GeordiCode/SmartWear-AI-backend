@@ -1,127 +1,134 @@
-# 👕 Emotion-Based Fashion Recommender
 
-Este proyecto es una aplicación fullstack que recomienda ropa según las emociones del usuario detectadas mediante la cámara. Combina visión por computadora con técnicas de aprendizaje por refuerzo para ofrecer una experiencia personalizada e inteligente.
+# 🧠 Backend - SmartWear AI
+
+Este backend alimenta una aplicación web de recomendación de ropa basada en el estado emocional del usuario, usando un sistema híbrido de lógica heurística y aprendizaje por refuerzo con red neuronal. Se incluye un modelo tipo Multi-Armed Bandit mejorado y una API construida con FastAPI.
+
+## 🚀 Tecnologías Usadas
+
+- 🐍 Python 3.12
+- ⚡ FastAPI + Uvicorn
+- 🤖 PyTorch (Red neuronal Bandit)
+- 🧪 Pandas (procesamiento de CSV)
+- 📊 Scikit-learn (evaluación y pruebas)
+- 📦 JSON y CSV como fuentes de datos
+- 🧠 Multi-Armed Bandit personalizado (exploración/explotación)
+- 🧠 Dropout + BatchNorm en modelos
+- 📈 Scripts de validación: AUC, ROC, K-Fold, ruido
 
 ---
 
-## 🎯 Características principales
-
-- 📷 Detección de emociones faciales en tiempo real usando **FaceAPI.js**
-- 🧠 Motor de recomendación adaptativo mediante **Multi-Armed Bandit**
-- 👦 Reconocimiento de **género** para filtrar prendas relevantes
-- ♻️ Feedback del usuario que entrena al sistema para mejorar sus sugerencias
-- 🗂️ Recomendaciones extraídas del dataset de Kaggle: [Fashion Product Images Dataset](https://www.kaggle.com/datasets/paramaggarwal/fashion-product-images-dataset)
-- 🔄 Backend en **FastAPI**, frontend en **React + Vite**
-
----
-
-## 📁 Estructura del proyecto
+## 📁 Estructura del Proyecto
 
 ```
-proyectoRopaJordi/
-├── backend/
-│   ├── app.py
-│   ├── bandits/
-│   │   └── bandit_manager.py
-│   ├── recommendations/
-│   │   └── recommendations.json
-│   └── data/
-│       ├── images/
-│       └── styles.csv
-├── my-react-app/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   └── components/
-│   │       └── ui/
-│   │           ├── button.jsx
-│   │           └── card.jsx
-│   └── public/
-│       └── models/  ← modelos de FaceAPI.js
+backend/
+├── app.py                         # API principal (FastAPI)
+├── bandits/
+│   └── bandit_manager.py          # Lógica del modelo Bandit (mejorado y simple)
+├── recommendations/
+│   ├── recommendations.json       # Recomendaciones base por emoción
+├── data/
+│   └── prendas.csv                # Dataset de entrada
+├── feedback.json                  # Historial de retroalimentación
+├── scripts/
+│   └── generate_recommendations.py    # Script de generación de recomendaciones
+│   └── evaluacion_modelos.ipynb   # Comparaciones, AUC, ROC, ruido, etc.
 ```
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
+## ✅ Funcionalidades
 
-### 1. Backend (FastAPI + Recomendaciones)
+- 🔍 Recomendaciones por emoción, género y categoría
+- 💡 Heurísticas basadas en emociones y colores
+- 🎯 Sistema tipo Tinder (selección visual)
+- 🧠 Multi-Armed Bandit con red neuronal personalizada
+- 🔁 Entrenamiento online con feedback (`like` o `dislike`)
+- 📩 Endpoint REST para recibir feedback por lote
+- ⚙️ Filtrado dinámico por CSV y JSON
+
+---
+
+## 📡 Endpoints (FastAPI)
+
+- `GET /api/recommendations/{emotion}`  
+  Recomendaciones según emoción, género, categoría.
+
+- `POST /api/tinder-recommendation`  
+  Endpoint principal para Shinder. Usa Bandit para seleccionar.
+
+- `POST /api/tinder-feedback-batch`  
+  Entrena el modelo con una lista de prendas tipo "like".
+
+- `POST /api/feedback/`  
+  Feedback individual: item + emoción + recompensa.
+
+- `GET /api/ping`  
+  Prueba de vida del servidor.
+
+---
+
+## 🔧 Ejecución
+
+Instala dependencias:
 
 ```bash
-cd backend
-mkdir data
 python -m venv venv
-venv\Scripts\activate        # En Windows
+source venv/Scripts/activate
 pip install -r requirements.txt
+```
+
+Ejecuta FastAPI:
+
+```bash
 uvicorn app:app --reload
 ```
 
-Asegúrate de tener:
-- El archivo `styles.csv` en `backend/data/`
-- Las imágenes del dataset en `backend/data/images/`
-- El archivo `recommendations.json` generado por `generate_recommendations.py`
-
----
-
-### 2. Frontend (React)
+Genera las recomendaciones base:
 
 ```bash
-cd my-react-app
-npm install
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-npm install firebase
-npm install firebase@latest
-npm install react-router-dom
-npm install papaparse
-npm run dev
+python generate_recommendations.py
 ```
 
 ---
 
-## 🧠 Inteligencia incorporada (IA)
+## 📊 Evaluaciones
 
-Este sistema utiliza:
+El modelo mejorado fue evaluado con:
 
-- 📊 **Multi-Armed Bandit (ε-greedy)**: selecciona las mejores prendas con base en la retroalimentación (rewards) del usuario.
-- 👁️‍🗨️ **FaceAPI.js**: para detección de emociones y género desde la cámara.
-- 🧠 En el futuro, se puede migrar a **Firebase** o **MongoDB** para guardar el feedback y el historial.
+- ✅ Métricas clásicas: Accuracy, Precision, Recall, F1
+- 📈 AUC y curva ROC
+- 🔄 Validación cruzada (K-Fold)
+- 🔀 Datos ruidosos (10%, 30%, 50%)
+- 📉 Comparación contra modelo simple
 
----
-
-## 📝 Feedback
-
-El feedback se registra mediante un POST a:
-
-```
-POST /api/feedback/
-Body:
-{
-  "emotion": "happy",
-  "item_id": "12345",
-  "reward": 1.0
-}
-```
-
-Esto permite que el sistema aprenda qué prendas gustaron más a cada emoción.
+Scripts disponibles en `/scripts/` para pruebas reproducibles.
 
 ---
 
-## ✅ Pendientes / Ideas futuras
+## 🧠 Modelo Bandit Mejorado
 
-- [ ] Sección de “Recomendaciones populares”
-- [ ] Guardar historial del usuario
-- [ ] Migración a base de datos persistente (Firebase o MongoDB)
-- [ ] Incorporar edad como filtro adicional
-- [ ] Sistema de autenticación para perfiles únicos
-
----
-
-## 📸 Capturas
-
-![Demo](demo_1.png)
-![Detección](demo_2.png)
+- Entrada: 23 características (7 emociones + 16 colores)
+- Arquitectura:
+  - Capa 1: Linear(23→64) + LayerNorm + ReLU + Dropout(0.3)
+  - Capa 2: Linear(64→32) + ReLU
+  - Salida: Linear(32→1) (estimación de recompensa)
+- Entrenamiento por retroalimentación (online learning)
+- Compatible con feedback tipo lote o individual
 
 ---
 
-## 📄 Licencia
+## 👤 Autores
 
-MIT © [Jordi Ledesma, Diego Llanos]
+Proyecto de grado en Ingeniería de Sistemas (Universidad del Valle):
+
+- **Jordi Santiago Ledesma Arboleda**  
+  [GitHub](https://github.com/GeordiCode/SmartWear-AI-backend)
+
+- **Diego Llanos**  
+  [GitHub](https://github.com/Dife2703/ProyectoGradoRopa)
+
+---
+
+## 📜 Licencia
+
+Uso académico con fines investigativos. Todos los derechos reservados.
