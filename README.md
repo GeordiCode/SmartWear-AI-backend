@@ -119,7 +119,7 @@ Este script:
 Proyecto desarrollado por:
 
 - **Jordi Santiago Ledesma Arboleda**  
-  [GitHub - GeordiCode](https://github.com/GeordiCode/SmartWear-AI)
+  [GitHub - GeordiCode](https://github.com/GeordiCode/SmartWear-AI-backend)
 
 ---
 
