@@ -114,7 +114,7 @@ Este script:
 
 ---
 
-## 👤 Autor
+## 👤 Autores
 
 Proyecto desarrollado por:
 
