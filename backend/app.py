@@ -14,7 +14,8 @@ import pandas as pd
 from bandits.bandit_manager import MultiArmedBandit
 
 app = FastAPI()
-bandit = MultiArmedBandit()
+# bandit = MultiArmedBandit()
+bandit = MultiArmedBandit(use_improved=True)
 
 app.add_middleware(
     CORSMiddleware,
@@ -272,11 +273,5 @@ async def register_feedback(request: Request):
         json.dump(feedbacks, f, indent=2, ensure_ascii=False)
 
     return {"message": "Feedback recibido"}
-
-@app.get("/api/ping")
-async def ping():
-    return {"ok": True, "message": "pong"}
-
-
 
 app.mount("/data", StaticFiles(directory="data"), name="data")
