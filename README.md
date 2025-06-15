@@ -121,6 +121,9 @@ Proyecto desarrollado por:
 - **Jordi Santiago Ledesma Arboleda**  
   [GitHub - GeordiCode](https://github.com/GeordiCode/SmartWear-AI-backend)
 
+- **Diego Llanos**
+  ([GitHub](https://github.com/Dife2703/ProyectoGradoRopa))
+
 ---
 
 ## 📜 Licencia
