@@ -1,18 +1,19 @@
 
 # 🧠 Backend - SmartWear AI
 
-Este backend está diseñado para alimentar una aplicación web de recomendación de ropa basada en el estado emocional del usuario. Utiliza técnicas de aprendizaje por refuerzo (Multi-Armed Bandit), una red neuronal y lógica de filtrado para proporcionar recomendaciones personalizadas de prendas.
+Este backend alimenta una aplicación web de recomendación de ropa basada en el estado emocional del usuario, usando un sistema híbrido de lógica heurística y aprendizaje por refuerzo con red neuronal. Se incluye un modelo tipo Multi-Armed Bandit mejorado y una API construida con FastAPI.
 
 ## 🚀 Tecnologías Usadas
 
 - 🐍 Python 3.12
-- ⚡ FastAPI
-- 🔁 Uvicorn
-- 🤖 PyTorch (Red neuronal para aprendizaje por refuerzo)
-- 🧪 Pandas (procesamiento del CSV)
-- 📦 JSON y CSV como estructuras de datos
-- 💡 Algoritmo Multi-Armed Bandit personalizado
-- 🎨 Reglas heurísticas para emociones y categorías
+- ⚡ FastAPI + Uvicorn
+- 🤖 PyTorch (Red neuronal Bandit)
+- 🧪 Pandas (procesamiento de CSV)
+- 📊 Scikit-learn (evaluación y pruebas)
+- 📦 JSON y CSV como fuentes de datos
+- 🧠 Multi-Armed Bandit personalizado (exploración/explotación)
+- 🧠 Dropout + BatchNorm en modelos
+- 📈 Scripts de validación: AUC, ROC, K-Fold, ruido
 
 ---
 
@@ -20,112 +21,114 @@ Este backend está diseñado para alimentar una aplicación web de recomendació
 
 ```
 backend/
-├── app.py                         # Archivo principal con todos los endpoints
-├── bandit_manager.py              # Modelo de aprendizaje por refuerzo y red neuronal
-├── generate_recommendations.py    # Script para preprocesar el CSV y generar recomendaciones base por emoción
+├── app.py                         # API principal (FastAPI)
+├── bandits/
+│   └── bandit_manager.py          # Lógica del modelo Bandit (mejorado y simple)
 ├── recommendations/
-│   ├── recommendations.json       # Archivo JSON con las recomendaciones generadas
-│   └── recomendaciones_emocion_categoria.csv
+│   ├── recommendations.json       # Recomendaciones base por emoción
 ├── data/
-│   └── prendas.csv                # Dataset de prendas base
+│   └── prendas.csv                # Dataset de entrada
+├── feedback.json                  # Historial de retroalimentación
+├── scripts/
+│   └── generate_recommendations.py    # Script de generación de recomendaciones
+│   └── evaluacion_modelos.ipynb   # Comparaciones, AUC, ROC, ruido, etc.
 ```
 
 ---
 
-## ✅ Funcionalidades Principales
+## ✅ Funcionalidades
 
-- Recomendación personalizada de prendas basada en:
-  - Estado emocional del usuario
-  - Género seleccionado
-  - Categoría general de la prenda
-- Entrenamiento en línea (online learning) con feedback del usuario (`like` o `dislike`)
-- Algoritmo de tipo **Multi-Armed Bandit** para balancear exploración y explotación
-- Filtro inteligente por color base y categorías específicas
-- Recomendaciones tipo "Tinder" que muestran una prenda a la vez
-- Actualización dinámica del modelo tras cada retroalimentación
+- 🔍 Recomendaciones por emoción, género y categoría
+- 💡 Heurísticas basadas en emociones y colores
+- 🎯 Sistema tipo Tinder (selección visual)
+- 🧠 Multi-Armed Bandit con red neuronal personalizada
+- 🔁 Entrenamiento online con feedback (`like` o `dislike`)
+- 📩 Endpoint REST para recibir feedback por lote
+- ⚙️ Filtrado dinámico por CSV y JSON
 
 ---
 
-## 📡 Endpoints Disponibles (FastAPI)
+## 📡 Endpoints (FastAPI)
 
-- `GET /tinder-recommendations`  
-  Retorna 1 prenda optimizada según emoción, género y categoría.  
-  **Parámetros**: `emotion`, `gender`, `categoria_general`
+- `GET /api/recommendations/{emotion}`  
+  Recomendaciones según emoción, género, categoría.
 
-- `POST /feedback-tinder`  
-  Registra la retroalimentación del usuario (like/dislike) y entrena el modelo.  
-  **Body JSON**: `emotion`, `id`, `feedback` (1 o 0)
+- `POST /api/tinder-recommendation`  
+  Endpoint principal para Shinder. Usa Bandit para seleccionar.
 
-- `GET /prendas`  
-  Muestra todas las prendas disponibles en el sistema
+- `POST /api/tinder-feedback-batch`  
+  Entrena el modelo con una lista de prendas tipo "like".
 
-- `GET /categorias`  
-  Muestra las categorías de ropa filtradas por género
+- `POST /api/feedback/`  
+  Feedback individual: item + emoción + recompensa.
 
-- `GET /recomendaciones-emocion`  
-  Muestra recomendaciones basadas en la emoción, sin necesidad de feedback
+- `GET /api/ping`  
+  Prueba de vida del servidor.
 
 ---
 
-## 🔧 Cómo Ejecutar
+## 🔧 Ejecución
 
 Instala dependencias:
 
 ```bash
-cd backend
 python -m venv venv
-source venv/Scripts/activate  # o 'source venv/bin/activate' en Unix
+source venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
-Corre el servidor:
+Ejecuta FastAPI:
 
 ```bash
 uvicorn app:app --reload
 ```
 
----
-
-## 🧪 Preprocesamiento del Dataset
-
-Antes de ejecutar el backend, asegúrate de generar el archivo `recommendations.json` con:
+Genera las recomendaciones base:
 
 ```bash
 python generate_recommendations.py
 ```
 
-Este script:
+---
 
-- Carga el dataset `prendas.csv`
-- Lo filtra por emoción y categoría
-- Genera recomendaciones en `recommendations/recommendations.json`
+## 📊 Evaluaciones
+
+El modelo mejorado fue evaluado con:
+
+- ✅ Métricas clásicas: Accuracy, Precision, Recall, F1
+- 📈 AUC y curva ROC
+- 🔄 Validación cruzada (K-Fold)
+- 🔀 Datos ruidosos (10%, 30%, 50%)
+- 📉 Comparación contra modelo simple
+
+Scripts disponibles en `/scripts/` para pruebas reproducibles.
 
 ---
 
-## 🧠 Detalles del Modelo Bandit
+## 🧠 Modelo Bandit Mejorado
 
-- Codifica emociones y colores con vectores one-hot
-- Red neuronal:
-  - Entrada: 23 (7 emociones + 16 colores base)
-  - Capa oculta: 32 neuronas + ReLU
-  - Salida: puntuación estimada (recompensa)
-- Aprende en línea con retroalimentación directa
-- Selecciona las mejores prendas por puntuación o aleatoriamente con `epsilon`
+- Entrada: 23 características (7 emociones + 16 colores)
+- Arquitectura:
+  - Capa 1: Linear(23→64) + LayerNorm + ReLU + Dropout(0.3)
+  - Capa 2: Linear(64→32) + ReLU
+  - Salida: Linear(32→1) (estimación de recompensa)
+- Entrenamiento por retroalimentación (online learning)
+- Compatible con feedback tipo lote o individual
 
 ---
 
 ## 👤 Autores
 
-Proyecto desarrollado por:
+Proyecto de grado en Ingeniería de Sistemas (Universidad del Valle):
 
 - **Jordi Santiago Ledesma Arboleda**  
-  [GitHub - GeordiCode](https://github.com/GeordiCode/SmartWear-AI-backend)
+  [GitHub](https://github.com/GeordiCode/SmartWear-AI-backend)
 
-- **Diego Llanos**
-  ([GitHub](https://github.com/Dife2703/ProyectoGradoRopa))
+- **Diego Llanos**  
+  [GitHub](https://github.com/Dife2703/ProyectoGradoRopa)
 
 ---
 
 ## 📜 Licencia
 
-Este software se desarrolla como parte de un trabajo de grado en Ingeniería de Sistemas y está disponible bajo licencia de uso académico.
+Uso académico con fines investigativos. Todos los derechos reservados.
