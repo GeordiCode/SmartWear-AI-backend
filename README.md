@@ -98,7 +98,7 @@ El modelo mejorado fue evaluado con:
 - ✅ Métricas clásicas: Accuracy, Precision, Recall, F1
 - 📈 AUC y curva ROC
 - 🔄 Validación cruzada (K-Fold)
-- 🔀 Datos ruidosos (10%, 30%, 50%)
+- 🔀 Datos ruidosos (5%, 10%, 15%, 20%, 30%)
 - 📉 Comparación contra modelo simple
 
 Scripts disponibles en `/scripts/` para pruebas reproducibles.
