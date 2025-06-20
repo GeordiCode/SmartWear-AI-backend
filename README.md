@@ -31,7 +31,6 @@ backend/
 ├── feedback.json                  # Historial de retroalimentación
 ├── scripts/
 │   └── generate_recommendations.py    # Script de generación de recomendaciones
-│   └── evaluacion_modelos.ipynb   # Comparaciones, AUC, ROC, ruido, etc.
 ```
 
 ---
@@ -99,9 +98,8 @@ El modelo mejorado fue evaluado con:
 - 📈 AUC y curva ROC
 - 🔄 Validación cruzada (K-Fold)
 - 🔀 Datos ruidosos (5%, 10%, 15%, 20%, 30%)
-- 📉 Comparación contra modelo simple
 
-Scripts disponibles en `/scripts/` para pruebas reproducibles.
+Scripts disponibles en https://colab.research.google.com/drive/1VlfHfrpQCC2bqrGxICkDt-jUprHXJL7R?usp=sharing para pruebas reproducibles.
 
 ---
 
